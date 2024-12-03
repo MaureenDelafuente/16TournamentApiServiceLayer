@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Tournament.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -33,23 +33,23 @@ namespace Tournament.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Time = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TournamentId = table.Column<int>(type: "int", nullable: false),
-                    TournamentDetailsId = table.Column<int>(type: "int", nullable: true)
+                    TournamentId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Game", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Game_TournamentDetails_TournamentDetailsId",
-                        column: x => x.TournamentDetailsId,
+                        name: "FK_Game_TournamentDetails_TournamentId",
+                        column: x => x.TournamentId,
                         principalTable: "TournamentDetails",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Game_TournamentDetailsId",
+                name: "IX_Game_TournamentId",
                 table: "Game",
-                column: "TournamentDetailsId");
+                column: "TournamentId");
         }
 
         /// <inheritdoc />

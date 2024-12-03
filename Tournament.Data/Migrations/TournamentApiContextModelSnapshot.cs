@@ -37,15 +37,12 @@ namespace Tournament.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TournamentDetailsId")
-                        .HasColumnType("int");
-
                     b.Property<int>("TournamentId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TournamentDetailsId");
+                    b.HasIndex("TournamentId");
 
                     b.ToTable("Game");
                 });
@@ -72,9 +69,13 @@ namespace Tournament.Data.Migrations
 
             modelBuilder.Entity("Tournament.Core.Entities.Game", b =>
                 {
-                    b.HasOne("Tournament.Core.Entities.TournamentDetails", null)
+                    b.HasOne("Tournament.Core.Entities.TournamentDetails", "TournamentDetails")
                         .WithMany("Games")
-                        .HasForeignKey("TournamentDetailsId");
+                        .HasForeignKey("TournamentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TournamentDetails");
                 });
 
             modelBuilder.Entity("Tournament.Core.Entities.TournamentDetails", b =>
