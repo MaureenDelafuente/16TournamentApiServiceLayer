@@ -17,7 +17,7 @@ public class TournamentRepository: ITournamentRepository
     public async Task<IEnumerable<TournamentDetails>> GetAllAsync()
     {
         var tournaments = await _context.Set<TournamentDetails>()
-            .Include(t => t.Games)
+            //.Include(t => t.Games)
             .ToListAsync();
         return tournaments;
     }
@@ -26,7 +26,7 @@ public class TournamentRepository: ITournamentRepository
     {
         var tournament = await _context.Set<TournamentDetails>()
             .Where(t => t.Id == id)
-            .Include(t => t.Games)
+            //.Include(t => t.Games)
             .FirstOrDefaultAsync();
         return tournament;
     }

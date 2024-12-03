@@ -17,7 +17,6 @@ public class GameRepository : IGameRepository
     public async Task<IEnumerable<Game>> GetAllAsync()
     {
         var games = await _context.Set<Game>()
-            .Include(g => g.TournamentDetails) // TODO:include or not?
             .ToListAsync();
         return games;
     }
@@ -26,7 +25,6 @@ public class GameRepository : IGameRepository
     {
         var game = await _context.Set<Game>()
             .Where(g => g.Id == id)
-            .Include(g => g.TournamentDetails) // TODO:include or not?
             .FirstOrDefaultAsync();
         return game;
     }
