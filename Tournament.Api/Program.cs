@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Tournament.Data.Data;
 using Tournament.Api.Extensions;
+using Tournament.Core.Repositories;
+using Tournament.Data.Repositories;
 
 namespace Tournament.Api
 {
@@ -21,6 +23,7 @@ namespace Tournament.Api
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             var app = builder.Build();
 

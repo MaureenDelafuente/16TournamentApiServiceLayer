@@ -7,6 +7,7 @@ namespace Tournament.Api.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
+    // The "this" parameter adds an extension method to the class/interface that follows
     public static async Task SeedDataAsync(this IApplicationBuilder builder)
     {
         using (var scope = builder.ApplicationServices.CreateScope())

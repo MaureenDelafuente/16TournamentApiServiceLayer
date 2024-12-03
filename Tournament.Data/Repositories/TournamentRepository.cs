@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Tournament.Core.Entities;
 using Tournament.Core.Repositories;
+using Tournament.Data.Data;
 
 namespace Tournament.Data.Repositories;
 
@@ -8,37 +9,47 @@ public class TournamentRepository: ITournamentRepository
 {
     DbContext _context;
 
-    public TournamentRepository()
+    public TournamentRepository(TournamentApiContext context)
     {
-        _context = 
-    }
-    public Task<IEnumerable<TournamentDetails>> GetAllAsync()
-    {
-        throw new NotImplementedException();
+        _context = context;
     }
 
-    public Task<TournamentDetails> GetAsync(int id)
+    public async Task<IEnumerable<TournamentDetails>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        var tournaments = await _context.Set<TournamentDetails>()
+            .Include(t => t.Games)
+            .ToListAsync();
+        return tournaments;
     }
 
-    public Task<bool> AnyAsync(int id)
+    public async Task<TournamentDetails> GetAsync(int id)
     {
-        throw new NotImplementedException();
+        var tournament = await _context.Set<TournamentDetails>()
+            .Where(t => t.Id == id)
+            .Include(t => t.Games)
+            .FirstOrDefaultAsync();
+        return tournament;
+    }
+
+    public async Task<bool> AnyAsync(int id)
+    {
+        var exists = await _context.Set<TournamentDetails>()
+            .AnyAsync(t => t.Id == id);
+        return exists;
     }
 
     public void Add(TournamentDetails tournament)
     {
-        throw new NotImplementedException();
+        _context.Set<TournamentDetails>().Add(tournament);
     }
 
     public void Update(TournamentDetails tournament)
     {
-        throw new NotImplementedException();
+        _context.Set<TournamentDetails>().Update(tournament);
     }
 
     public void Remove(TournamentDetails tournament)
     {
-        throw new NotImplementedException();
+        _context.Set<TournamentDetails>().Remove(tournament);
     }
 }
