@@ -26,6 +26,7 @@ namespace Tournament.Api
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
             builder.Services.AddScoped<IGameRepository, GameRepository>();
+            builder.Services.AddAutoMapper(typeof(TournamentMappings));
 
             var app = builder.Build();
 

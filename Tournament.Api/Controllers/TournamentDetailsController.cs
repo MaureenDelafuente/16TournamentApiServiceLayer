@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using Tournament.Core.Entities;
 using Tournament.Core.Repositories;
 using Tournament.Data.Repositories;
 using Bogus.DataSets;
+using Tournament.Core.Dto;
 
 namespace Tournament.Api.Controllers
 {
@@ -19,22 +21,27 @@ namespace Tournament.Api.Controllers
     {
         //private readonly TournamentApiContext _context;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public TournamentDetailsController(IUnitOfWork unitOfWork)
+        public TournamentDetailsController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         // GET: api/TournamentDetails
         [HttpGet]
-        public async Task<IEnumerable<TournamentDetails>> GetTournamentDetails()
+        public async Task<IEnumerable<TournamentDto>> GetTournamentDetails()
         {
-            return await _unitOfWork.TournamentRepository.GetAllAsync();
+            //return await _unitOfWork.TournamentRepository.GetAllAsync();
+            var tournaments = await _unitOfWork.TournamentRepository.GetAllAsync();
+            var tournamentDtos = _mapper.Map<IEnumerable<TournamentDto>>(tournaments);
+            return tournamentDtos;
         }
 
         // GET: api/TournamentDetails/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<TournamentDetails>> GetTournamentDetails(int id)
+        public async Task<ActionResult<TournamentDto>> GetTournamentDetails(int id)
         {
             var tournamentDetails = await _unitOfWork.TournamentRepository.GetAsync(id);
 
@@ -43,7 +50,8 @@ namespace Tournament.Api.Controllers
                 return NotFound();
             }
 
-            return tournamentDetails;
+            var tournamentDto = _mapper.Map<TournamentDto>(tournamentDetails);
+            return tournamentDto;
         }
 
         // PUT: api/TournamentDetails/5

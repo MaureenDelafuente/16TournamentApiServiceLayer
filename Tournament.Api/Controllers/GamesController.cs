@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Tournament.Core.Dto;
 using Tournament.Data.Data;
 using Tournament.Core.Entities;
 using Tournament.Core.Repositories;
@@ -17,22 +19,26 @@ namespace Tournament.Api.Controllers
     {
         //private readonly TournamentApiContext _context;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public GamesController(IUnitOfWork unitOfWork)
+        public GamesController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         // GET: api/Games
         [HttpGet]
-        public async Task<IEnumerable<Game>> GetGame()
+        public async Task<IEnumerable<GameDto>> GetGame()
         {
-            return await _unitOfWork.GameRepository.GetAllAsync();
+            var games = await _unitOfWork.GameRepository.GetAllAsync();
+            var gameDtos = _mapper.Map<IEnumerable<GameDto>>(games);
+            return gameDtos;
         }
 
         // GET: api/Games/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Game>> GetGame(int id)
+        public async Task<ActionResult<GameDto>> GetGame(int id)
         {
             //var game = await _context.Game.FindAsync(id);
             var game = await _unitOfWork.GameRepository.GetAsync(id);
@@ -42,7 +48,8 @@ namespace Tournament.Api.Controllers
                 return NotFound();
             }
 
-            return game;
+            var gameDto = _mapper.Map<GameDto>(game);
+            return Ok(gameDto);
         }
 
         // PUT: api/Games/5
@@ -81,14 +88,14 @@ namespace Tournament.Api.Controllers
         // POST: api/Games
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Game>> PostGame(Game game)
+        public async Task<ActionResult<GameDto>> PostGame(Game game)
         {
             //_context.Game.Add(game);
             //await _context.SaveChangesAsync();
             _unitOfWork.GameRepository.Add(game);
             await _unitOfWork.CompleteAsync();
-
-            return CreatedAtAction("GetGame", new { id = game.Id }, game);
+            var gameDto = _mapper.Map<GameDto>(game);
+            return CreatedAtAction("GetGame", new { id = game.Id }, gameDto);
         }
 
         // DELETE: api/Games/5
