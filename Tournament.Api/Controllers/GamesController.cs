@@ -29,11 +29,12 @@ namespace Tournament.Api.Controllers
 
         // GET: api/Games
         [HttpGet]
-        public async Task<IEnumerable<GameDto>> GetGame()
+        public async Task<ActionResult<IEnumerable<GameDto>>> GetGame()
         {
             var games = await _unitOfWork.GameRepository.GetAllAsync();
             var gameDtos = _mapper.Map<IEnumerable<GameDto>>(games);
-            return gameDtos;
+            return Ok(gameDtos); //when returning statuscode like Ok instead of just data,
+                                 //the method return type has to be wrapped in ActionResult
         }
 
         // GET: api/Games/5
@@ -54,6 +55,9 @@ namespace Tournament.Api.Controllers
 
         // PUT: api/Games/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
+        // POST: api/Games
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutGame(int id, Game game)
         {
@@ -82,20 +86,27 @@ namespace Tournament.Api.Controllers
                 }
             }
 
-            return NoContent();
+            //return NoContent();
+            var gameDto = _mapper.Map<GameDto>(game);
+            return Ok(gameDto);
         }
 
-        // POST: api/Games
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
         [HttpPost]
-        public async Task<ActionResult<GameDto>> PostGame(Game game)
+        public async Task<ActionResult<GameDto>> PostGame(GameDto gameDto)
         {
-            //_context.Game.Add(game);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            //_context.Game.Add(gameDto);
             //await _context.SaveChangesAsync();
+            var game = _mapper.Map<Game>(gameDto);
             _unitOfWork.GameRepository.Add(game);
             await _unitOfWork.CompleteAsync();
-            var gameDto = _mapper.Map<GameDto>(game);
-            return CreatedAtAction("GetGame", new { id = game.Id }, gameDto);
+            var createdGameDto = _mapper.Map<GameDto>(game);
+            return CreatedAtAction("GetGame", new { id = game.Id }, createdGameDto);
         }
 
         // DELETE: api/Games/5

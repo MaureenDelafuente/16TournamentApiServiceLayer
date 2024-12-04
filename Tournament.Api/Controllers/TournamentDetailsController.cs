@@ -31,12 +31,12 @@ namespace Tournament.Api.Controllers
 
         // GET: api/TournamentDetails
         [HttpGet]
-        public async Task<IEnumerable<TournamentDto>> GetTournamentDetails()
+        public async Task<ActionResult<IEnumerable<TournamentDto>>> GetTournamentDetails()
         {
             //return await _unitOfWork.TournamentRepository.GetAllAsync();
             var tournaments = await _unitOfWork.TournamentRepository.GetAllAsync();
             var tournamentDtos = _mapper.Map<IEnumerable<TournamentDto>>(tournaments);
-            return tournamentDtos;
+            return Ok(tournamentDtos);
         }
 
         // GET: api/TournamentDetails/5
@@ -51,7 +51,7 @@ namespace Tournament.Api.Controllers
             }
 
             var tournamentDto = _mapper.Map<TournamentDto>(tournamentDetails);
-            return tournamentDto;
+            return Ok(tournamentDto);
         }
 
         // PUT: api/TournamentDetails/5
@@ -84,7 +84,8 @@ namespace Tournament.Api.Controllers
                 }
             }
 
-            return NoContent();
+            var tournamentDto = _mapper.Map<TournamentDto>(tournament);
+            return Ok(tournamentDto);
         }
 
         // POST: api/TournamentDetails
