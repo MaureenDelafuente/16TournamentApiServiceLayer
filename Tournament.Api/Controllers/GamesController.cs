@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Tournament.Core.Dto;
@@ -37,12 +38,12 @@ namespace Tournament.Api.Controllers
                                  //the method return type has to be wrapped in ActionResult
         }
 
-        // GET: api/Games/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<GameDto>> GetGame(int id)
+        // GET: api/Games/
+        [HttpGet("{title}")]
+        public async Task<ActionResult<GameDto>> GetGame(string title)
         {
             //var game = await _context.Game.FindAsync(id);
-            var game = await _unitOfWork.GameRepository.GetAsync(id);
+            var game = await _unitOfWork.GameRepository.GetAsync(title);
 
             if (game == null)
             {
@@ -52,6 +53,21 @@ namespace Tournament.Api.Controllers
             var gameDto = _mapper.Map<GameDto>(game);
             return Ok(gameDto);
         }
+        //// GET: api/Games/5
+        //[HttpGet("{id}")]
+        //public async Task<ActionResult<GameDto>> GetGame(int id)
+        //{
+        //    //var game = await _context.Game.FindAsync(id);
+        //    var game = await _unitOfWork.GameRepository.GetAsync(id);
+
+        //    if (game == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var gameDto = _mapper.Map<GameDto>(game);
+        //    return Ok(gameDto);
+        //}
 
         // PUT: api/Games/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -91,8 +107,28 @@ namespace Tournament.Api.Controllers
             return Ok(gameDto);
         }
 
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPatch("{gameId}")]
+        public async Task<ActionResult<GameDto>> PatchGame(int gameId, JsonPatchDocument<GameDto> patchDocument)
+        {
+            if (patchDocument is null) return BadRequest("No patch document");
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            
+            var gameToPatch = await _unitOfWork.GameRepository.GetAsync(gameId);
+            if (gameToPatch is null) return NotFound("Game not found");
 
+            var dto = _mapper.Map<GameDto>(gameToPatch);
+            patchDocument.ApplyTo(dto, ModelState);
+            TryValidateModel(dto);
+            if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
+
+            _mapper.Map(dto, gameToPatch);
+            await _unitOfWork.CompleteAsync();
+
+            return Ok(dto);
+        }
+
+
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<GameDto>> PostGame(GameDto gameDto)
         {

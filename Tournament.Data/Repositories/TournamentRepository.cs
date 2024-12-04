@@ -17,7 +17,14 @@ public class TournamentRepository: ITournamentRepository
     public async Task<IEnumerable<TournamentDetails>> GetAllAsync()
     {
         var tournaments = await _context.Set<TournamentDetails>()
-            //.Include(t => t.Games)
+            .ToListAsync();
+        return tournaments;
+    }
+
+    public async Task<IEnumerable<TournamentDetails>> GetAllWithGamesAsync()
+    {
+        var tournaments = await _context.Set<TournamentDetails>()
+            .Include(t => t.Games)
             .ToListAsync();
         return tournaments;
     }

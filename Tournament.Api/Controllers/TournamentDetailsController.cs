@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Azure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using Tournament.Core.Entities;
 using Tournament.Core.Repositories;
 using Tournament.Data.Repositories;
 using Bogus.DataSets;
+using Microsoft.AspNetCore.JsonPatch;
 using Tournament.Core.Dto;
 
 namespace Tournament.Api.Controllers
@@ -31,10 +33,13 @@ namespace Tournament.Api.Controllers
 
         // GET: api/TournamentDetails
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TournamentDto>>> GetTournamentDetails()
+        public async Task<ActionResult<IEnumerable<TournamentDto>>> GetTournamentDetails([FromQuery] bool includeGames = false)
         {
             //return await _unitOfWork.TournamentRepository.GetAllAsync();
-            var tournaments = await _unitOfWork.TournamentRepository.GetAllAsync();
+            var tournaments
+                = includeGames
+                    ? await _unitOfWork.TournamentRepository.GetAllWithGamesAsync()
+                    : await _unitOfWork.TournamentRepository.GetAllAsync();
             var tournamentDtos = _mapper.Map<IEnumerable<TournamentDto>>(tournaments);
             return Ok(tournamentDtos);
         }
@@ -88,11 +93,40 @@ namespace Tournament.Api.Controllers
             return Ok(tournamentDto);
         }
 
+        [HttpPatch("{tournamentId}")]
+        public async Task<ActionResult<TournamentDto>> PatchTournament(int tournamentId,
+            JsonPatchDocument<TournamentDto> patchDocument)
+        {
+            if (patchDocument is null) return BadRequest("No patch document");
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var tournamentToPatch = await _unitOfWork.TournamentRepository.GetAsync(tournamentId);
+            if (tournamentToPatch is null) return NotFound("Tournament not found");
+
+            var dto = _mapper.Map<TournamentDto>(tournamentToPatch);
+            patchDocument.ApplyTo(dto, ModelState);
+            TryValidateModel(dto);
+            if (!ModelState.IsValid) return UnprocessableEntity(ModelState);
+
+            _mapper.Map(dto, tournamentToPatch);
+            await _unitOfWork.CompleteAsync();
+
+            return Ok(dto);
+        }
+
         // POST: api/TournamentDetails
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<TournamentDetails>> PostTournamentDetails(TournamentDetails tournament)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             //_context.TournamentDetails.Add(tournament);
             //await _context.SaveChangesAsync();
             _unitOfWork.TournamentRepository.Add(tournament);

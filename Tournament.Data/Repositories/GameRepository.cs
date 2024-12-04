@@ -29,6 +29,14 @@ public class GameRepository : IGameRepository
         return game;
     }
 
+    public async Task<Game> GetAsync(string title)
+    {
+        var game = await _context.Set<Game>()
+            .Where(g => g.Title == title)
+            .FirstOrDefaultAsync();
+        return game;
+    }
+
     public async Task<bool> AnyAsync(int id)
     {
         var exists = await _context.Set<Game>()
