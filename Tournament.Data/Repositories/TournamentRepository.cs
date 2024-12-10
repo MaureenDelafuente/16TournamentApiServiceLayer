@@ -33,9 +33,16 @@ public class TournamentRepository: ITournamentRepository
     {
         var tournament = await _context.Set<TournamentDetails>()
             .Where(t => t.Id == id)
-            //.Include(t => t.Games)
             .FirstOrDefaultAsync();
         return tournament;
+    }
+
+    public async Task<TournamentDetails> GetAsync(string title)
+    {
+        var tournament = await _context.Set<TournamentDetails>()
+            .Where(t => t.Title == title)
+            .FirstOrDefaultAsync();
+        return tournament; ;
     }
 
     public async Task<bool> AnyAsync(int id)

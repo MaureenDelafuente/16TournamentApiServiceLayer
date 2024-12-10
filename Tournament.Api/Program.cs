@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Service.Contracts;
 using Tournament.Data.Data;
 using Tournament.Api.Extensions;
 using Tournament.Core.Repositories;
 using Tournament.Data.Repositories;
+using Tournament.Services;
 
 namespace Tournament.Api
 {
@@ -26,6 +28,9 @@ namespace Tournament.Api
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
             builder.Services.AddScoped<IGameRepository, GameRepository>();
+            builder.Services.AddScoped<IServiceManager, ServiceManager>();
+            builder.Services.AddScoped<ITournamentService, TournamentService>();
+            builder.Services.AddScoped<IGameService, GameService>();
             builder.Services.AddAutoMapper(typeof(TournamentMappings));
 
             var app = builder.Build();

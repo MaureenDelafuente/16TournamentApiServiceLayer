@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Service.Contracts;
 using Tournament.Core.Dto;
 using Tournament.Data.Data;
 using Tournament.Core.Entities;
@@ -21,11 +22,13 @@ namespace Tournament.Api.Controllers
         //private readonly TournamentApiContext _context;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IServiceManager _serviceManager;
 
-        public GamesController(IUnitOfWork unitOfWork, IMapper mapper)
+        public GamesController(IUnitOfWork unitOfWork, IMapper mapper, IServiceManager serviceManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _serviceManager = serviceManager;
         }
 
         // GET: api/Games
