@@ -18,7 +18,7 @@ public class GameService : IGameService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<GameDto>> GetAll()
+    public async Task<IEnumerable<GameDto>> GetAllAsync()
     {
         var games = await _unitOfWork.GameRepository.GetAllAsync();
         var gameDtos = _mapper.Map<IEnumerable<GameDto>>(games);
@@ -45,21 +45,25 @@ public class GameService : IGameService
         return exists;
     }
 
-    public void Add(GameDto gameDto)
+    public Game Add(GameDto gameDto)
     {
         var game = _mapper.Map<Game>(gameDto);
         _unitOfWork.GameRepository.Add(game);
+        _unitOfWork.CompleteAsync();
+        return game;
     }
 
-    public void Update(GameDto gameDto)
+    public void Update(Game gameDto)
     {
         var game = _mapper.Map<Game>(gameDto);
         _unitOfWork.GameRepository.Update(game);
+        _unitOfWork.CompleteAsync();
     }
 
-    public void Remove(GameDto gameDto)
+    public async Task Remove(int id)
     {
-        var game = _mapper.Map<Game>(gameDto);
+        var game = await _unitOfWork.GameRepository.GetAsync(id);
         _unitOfWork.GameRepository.Remove(game);
+        _unitOfWork.CompleteAsync();
     }
 }

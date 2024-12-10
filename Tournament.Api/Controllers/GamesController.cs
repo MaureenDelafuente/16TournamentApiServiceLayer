@@ -35,8 +35,9 @@ namespace Tournament.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GameDto>>> GetGame()
         {
-            var games = await _unitOfWork.GameRepository.GetAllAsync();
-            var gameDtos = _mapper.Map<IEnumerable<GameDto>>(games);
+            //var games = await _unitOfWork.GameRepository.GetAllAsync();
+            //var gameDtos = _mapper.Map<IEnumerable<GameDto>>(games);
+            var gameDtos = await _serviceManager.GameService.GetAllAsync();
             return Ok(gameDtos); //when returning statuscode like Ok instead of just data,
                                  //the method return type has to be wrapped in ActionResult
         }
@@ -46,31 +47,31 @@ namespace Tournament.Api.Controllers
         public async Task<ActionResult<GameDto>> GetGame(string title)
         {
             //var game = await _context.Game.FindAsync(id);
-            var game = await _unitOfWork.GameRepository.GetAsync(title);
-
-            if (game == null)
+            //var game = await _unitOfWork.GameRepository.GetAsync(title);
+            var gameDto = await _serviceManager.GameService.Get(title);
+            if (gameDto == null)
             {
                 return NotFound();
             }
 
-            var gameDto = _mapper.Map<GameDto>(game);
+            //var gameDto = _mapper.Map<GameDto>(game);
             return Ok(gameDto);
         }
-        //// GET: api/Games/5
-        //[HttpGet("{id}")]
-        //public async Task<ActionResult<GameDto>> GetGame(int id)
-        //{
-        //    //var game = await _context.Game.FindAsync(id);
-        //    var game = await _unitOfWork.GameRepository.GetAsync(id);
+        // GET: api/Games/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<GameDto>> GetGame(int id)
+        {
+            //var game = await _context.Game.FindAsync(id);
+            //var game = await _unitOfWork.GameRepository.GetAsync(id);
+            var gameDto = await _serviceManager.GameService.Get(id);
+            if (gameDto == null)
+            {
+                return NotFound();
+            }
 
-        //    if (game == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var gameDto = _mapper.Map<GameDto>(game);
-        //    return Ok(gameDto);
-        //}
+            //var gameDto = _mapper.Map<GameDto>(game);
+            return Ok(gameDto);
+        }
 
         // PUT: api/Games/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -90,8 +91,9 @@ namespace Tournament.Api.Controllers
             try
             {
                 //await _context.SaveChangesAsync();
-                _unitOfWork.GameRepository.Update(game);
-                _unitOfWork.CompleteAsync();
+                //_unitOfWork.GameRepository.Update(game);
+                //_unitOfWork.CompleteAsync();
+                _serviceManager.GameService.Update(game);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -106,7 +108,8 @@ namespace Tournament.Api.Controllers
             }
 
             //return NoContent();
-            var gameDto = _mapper.Map<GameDto>(game);
+            //var gameDto = _mapper.Map<GameDto>(game);
+            var gameDto = _serviceManager.GameService.Get(id);
             return Ok(gameDto);
         }
 
@@ -119,6 +122,7 @@ namespace Tournament.Api.Controllers
             var gameToPatch = await _unitOfWork.GameRepository.GetAsync(gameId);
             if (gameToPatch is null) return NotFound("Game not found");
 
+            //TODO: not allowed to use AutoMapper here
             var dto = _mapper.Map<GameDto>(gameToPatch);
             patchDocument.ApplyTo(dto, ModelState);
             TryValidateModel(dto);
@@ -141,11 +145,15 @@ namespace Tournament.Api.Controllers
             }
             //_context.Game.Add(gameDto);
             //await _context.SaveChangesAsync();
-            var game = _mapper.Map<Game>(gameDto);
-            _unitOfWork.GameRepository.Add(game);
-            await _unitOfWork.CompleteAsync();
-            var createdGameDto = _mapper.Map<GameDto>(game);
-            return CreatedAtAction("GetGame", new { id = game.Id }, createdGameDto);
+
+            //var game = _mapper.Map<Game>(gameDto);
+            //_unitOfWork.GameRepository.Add(game);
+            //await _unitOfWork.CompleteAsync();
+            //var createdGameDto = _mapper.Map<GameDto>(game);
+            //return CreatedAtAction("GetGame", new { id = game.Id }, createdGameDto);
+
+            var g = _serviceManager.GameService.Add(gameDto);
+            return CreatedAtAction("GetGame", new { id = g.Id }, gameDto);
         }
 
         // DELETE: api/Games/5
@@ -153,16 +161,16 @@ namespace Tournament.Api.Controllers
         public async Task<IActionResult> DeleteGame(int id)
         {
             //var game = await _context.Game.FindAsync(id);
-            var game = await _unitOfWork.GameRepository.GetAsync(id);
-            if (game == null)
-            {
-                return NotFound();
-            }
+            //var game = await _unitOfWork.GameRepository.GetAsync(id);
+            //var game = await _serviceManager.GameService.Get(id);
+            var exists = await _serviceManager.GameService.Exists(id);
+            if (!exists) return NotFound();
 
             //_context.Game.Remove(game);
             //await _context.SaveChangesAsync();
-            _unitOfWork.GameRepository.Remove(game);
-            _unitOfWork.CompleteAsync();
+            //_unitOfWork.GameRepository.Remove(game);
+            //_unitOfWork.CompleteAsync();
+            _serviceManager.GameService.Remove(id);
 
             return NoContent();
         }
@@ -170,7 +178,8 @@ namespace Tournament.Api.Controllers
         private async Task<bool> GameExists(int id)
         {
             //return _context.Game.Any(e => e.Id == id);
-            return await _unitOfWork.GameRepository.AnyAsync(id);
+            //return await _unitOfWork.GameRepository.AnyAsync(id);
+            return await _serviceManager.GameService.Exists(id);
         }
     }
 }

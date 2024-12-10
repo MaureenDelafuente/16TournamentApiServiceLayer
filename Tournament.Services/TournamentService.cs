@@ -49,18 +49,21 @@ namespace Tournament.Services
         {
             var tournament = _mapper.Map<TournamentDetails>(tournamentDto);
             _unitOfWork.TournamentRepository.Add(tournament);
+            _unitOfWork.CompleteAsync();
         }
 
         public void Update(TournamentDto tournamentDto)
         {
             var tournament = _mapper.Map<TournamentDetails>(tournamentDto);
             _unitOfWork.TournamentRepository.Update(tournament);
+            _unitOfWork.CompleteAsync();
         }
 
         public void Remove(TournamentDto tournamentDto)
         {
             var tournament = _mapper.Map<TournamentDetails>(tournamentDto);
             _unitOfWork.TournamentRepository.Remove(tournament);
+            _unitOfWork.CompleteAsync();
         }
     }
 }
