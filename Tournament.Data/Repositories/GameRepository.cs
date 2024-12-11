@@ -21,15 +21,25 @@ public class GameRepository : IGameRepository
         return games;
     }
 
-    public async Task<Game> GetAsync(int id)
+    public async Task<Game?> GetAsync(int id, bool trackChanges = false)
     {
-        var game = await _context.Set<Game>()
-            .Where(g => g.Id == id)
-            .FirstOrDefaultAsync();
-        return game;
+        if (trackChanges)
+        {
+            return await _context.Set<Game>()
+                .Where(g => g.Id == id)
+                .AsTracking()
+                .FirstOrDefaultAsync();
+        }
+        else
+        {
+            return await _context.Set<Game>()
+                .Where(g => g.Id == id)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+        }
     }
 
-    public async Task<Game> GetAsync(string title)
+    public async Task<Game?> GetAsync(string title)
     {
         var game = await _context.Set<Game>()
             .Where(g => g.Title == title)
@@ -51,6 +61,10 @@ public class GameRepository : IGameRepository
 
     public void Update(Game game)
     {
+        //if (_context.Entry(game).State == EntityState.Detached)
+        //{
+        //    _context.Attach(game);
+        //}
         _context.Set<Game>().Update(game);
     }
 

@@ -5,11 +5,12 @@ namespace Service.Contracts;
 
 public interface ITournamentService
 {
-    public Task<IEnumerable<TournamentDto>> GetAll();
-    public Task<TournamentDto> Get(int id);
-    public Task<TournamentDto> Get(string title);
-    public Task<bool> Exists(int id);
-    public void Add(TournamentDto tournament);
-    public void Update(TournamentDto tournament);
-    public void Remove(TournamentDto tournament);
+    public Task<IEnumerable<TournamentDto>> GetAllAsync();
+    public Task<IEnumerable<TournamentDto>> GetAllWithGamesAsync();
+    public Task<TournamentDto?> GetAsync(int id);
+    public Task<TournamentDto?> GetAsync(string title);
+    public Task<bool> ExistsAsync(int id);
+    public TournamentDetails Add(TournamentDto tournament);
+    public void Update(TournamentDetails tournament);
+    public Task Remove(int id);
 }

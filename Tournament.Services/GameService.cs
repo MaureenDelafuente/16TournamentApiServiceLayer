@@ -25,21 +25,23 @@ public class GameService : IGameService
         return gameDtos;
     }
 
-    public async Task<GameDto> Get(int id)
+    public async Task<GameDto?> GetAsync(int id)
     {
         var game = await _unitOfWork.GameRepository.GetAsync(id);
+        if (game is null) return null;
         var gameDto = _mapper.Map<GameDto>(game);
         return gameDto;
     }
 
-    public async Task<GameDto> Get(string title)
+    public async Task<GameDto?> GetAsync(string title)
     {
         var game = await _unitOfWork.GameRepository.GetAsync(title);
+        if (game is null) return null;
         var gameDto = _mapper.Map<GameDto>(game);
         return gameDto;
     }
 
-    public async Task<bool> Exists(int id)
+    public async Task<bool> ExistsAsync(int id)
     {
         var exists = await _unitOfWork.GameRepository.AnyAsync(id);
         return exists;
@@ -53,17 +55,17 @@ public class GameService : IGameService
         return game;
     }
 
-    public void Update(Game gameDto)
-    {
+    public async Task Update(Game gameDto)
+    {//TODO: this is weird
         var game = _mapper.Map<Game>(gameDto);
         _unitOfWork.GameRepository.Update(game);
-        _unitOfWork.CompleteAsync();
+        await _unitOfWork.CompleteAsync();
     }
 
     public async Task Remove(int id)
     {
         var game = await _unitOfWork.GameRepository.GetAsync(id);
         _unitOfWork.GameRepository.Remove(game);
-        _unitOfWork.CompleteAsync();
+        await _unitOfWork.CompleteAsync();
     }
 }

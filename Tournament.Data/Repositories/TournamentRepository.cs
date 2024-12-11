@@ -29,7 +29,7 @@ public class TournamentRepository: ITournamentRepository
         return tournaments;
     }
 
-    public async Task<TournamentDetails> GetAsync(int id)
+    public async Task<TournamentDetails?> GetAsync(int id)
     {
         var tournament = await _context.Set<TournamentDetails>()
             .Where(t => t.Id == id)
@@ -37,7 +37,7 @@ public class TournamentRepository: ITournamentRepository
         return tournament;
     }
 
-    public async Task<TournamentDetails> GetAsync(string title)
+    public async Task<TournamentDetails?> GetAsync(string title)
     {
         var tournament = await _context.Set<TournamentDetails>()
             .Where(t => t.Title == title)
@@ -52,9 +52,10 @@ public class TournamentRepository: ITournamentRepository
         return exists;
     }
 
-    public void Add(TournamentDetails tournament)
+    public async Task Add(TournamentDetails tournament)
     {
         _context.Set<TournamentDetails>().Add(tournament);
+        await _context.SaveChangesAsync();
     }
 
     public void Update(TournamentDetails tournament)
