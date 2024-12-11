@@ -14,17 +14,19 @@ public class TournamentRepository: ITournamentRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<TournamentDetails>> GetAllAsync()
+    public async Task<IEnumerable<TournamentDetails>> GetAllAsync(int pageSize)
     {
         var tournaments = await _context.Set<TournamentDetails>()
+            .Take(pageSize)
             .ToListAsync();
         return tournaments;
     }
 
-    public async Task<IEnumerable<TournamentDetails>> GetAllWithGamesAsync()
+    public async Task<IEnumerable<TournamentDetails>> GetAllWithGamesAsync(int pageSize)
     {
         var tournaments = await _context.Set<TournamentDetails>()
             .Include(t => t.Games)
+            .Take(pageSize)
             .ToListAsync();
         return tournaments;
     }

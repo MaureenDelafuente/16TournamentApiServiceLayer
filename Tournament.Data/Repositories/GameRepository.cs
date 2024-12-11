@@ -14,9 +14,10 @@ public class GameRepository : IGameRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Game>> GetAllAsync()
+    public async Task<IEnumerable<Game>> GetAllAsync(int pageSize)
     {
         var games = await _context.Set<Game>()
+            .Take(pageSize)
             .ToListAsync();
         return games;
     }

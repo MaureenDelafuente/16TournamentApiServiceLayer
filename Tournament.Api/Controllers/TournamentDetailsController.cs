@@ -28,13 +28,15 @@ namespace Tournament.Api.Controllers
         // GET: api/TournamentDetails
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TournamentDto>>> GetTournamentDetails(
+            [FromQuery] int pageSize = 20,
             [FromQuery] bool includeGames = false)
         {
             //return await _unitOfWork.TournamentRepository.GetAllAsync();
+            if (pageSize > 100) pageSize = 100;
             var tournamentDtos
                 = includeGames
-                    ? await _serviceManager.TournamentService.GetAllWithGamesAsync()
-                    : await _serviceManager.TournamentService.GetAllAsync();
+                    ? await _serviceManager.TournamentService.GetAllWithGamesAsync(pageSize)
+                    : await _serviceManager.TournamentService.GetAllAsync(pageSize);
             //var tournamentDtos = _mapper.Map<IEnumerable<TournamentDto>>(tournaments);
             return Ok(tournamentDtos);
         }

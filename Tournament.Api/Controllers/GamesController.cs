@@ -19,9 +19,10 @@ namespace Tournament.Api.Controllers
 
         // GET: api/Games
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GameDto>>> GetGame()
+        public async Task<ActionResult<IEnumerable<GameDto>>> GetGame([FromQuery] int pageSize = 20, [FromQuery] int page = 1)
         {
-            var gameDtos = await _serviceManager.GameService.GetAllAsync();
+            if (pageSize > 100) pageSize = 100;
+            var gameDtos = await _serviceManager.GameService.GetAllAsync(pageSize);
             return Ok(gameDtos);
         }
 
