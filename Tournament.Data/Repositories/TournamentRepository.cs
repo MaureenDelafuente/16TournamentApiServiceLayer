@@ -5,7 +5,7 @@ using Tournament.Data.Data;
 
 namespace Tournament.Data.Repositories;
 
-public class TournamentRepository: ITournamentRepository
+public class TournamentRepository : ITournamentRepository
 {
     DbContext _context;
 
@@ -14,19 +14,21 @@ public class TournamentRepository: ITournamentRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<TournamentDetails>> GetAllAsync(int pageSize)
+    public async Task<IEnumerable<TournamentDetails>> GetAllAsync(int pageSize, int page)
     {
         var tournaments = await _context.Set<TournamentDetails>()
+            .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
         return tournaments;
     }
 
-    public async Task<IEnumerable<TournamentDetails>> GetAllWithGamesAsync(int pageSize)
+    public async Task<IEnumerable<TournamentDetails>> GetAllWithGamesAsync(int pageSize, int page)
     {
         var tournaments = await _context.Set<TournamentDetails>()
-            .Include(t => t.Games)
+            .Skip((page - 1) * pageSize)
             .Take(pageSize)
+            .Include(t => t.Games)
             .ToListAsync();
         return tournaments;
     }
@@ -44,7 +46,8 @@ public class TournamentRepository: ITournamentRepository
         var tournament = await _context.Set<TournamentDetails>()
             .Where(t => t.Title == title)
             .FirstOrDefaultAsync();
-        return tournament; ;
+        return tournament;
+        ;
     }
 
     public async Task<bool> AnyAsync(int id)

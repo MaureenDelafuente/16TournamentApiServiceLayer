@@ -24,7 +24,7 @@ namespace Tournament.Api.Controllers
             [FromQuery] int page = 1)
         {
             if (pageSize > 100) pageSize = 100;
-            var gameDtos = await _serviceManager.GameService.GetAllAsync(pageSize);
+            var gameDtos = await _serviceManager.GameService.GetAllAsync(pageSize, page);
 
             var totalItemsInDb = await _serviceManager.GameService.Count();
             var totalPages = Math.Ceiling((double)totalItemsInDb / pageSize);

@@ -18,9 +18,9 @@ public class GameService : IGameService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<GameDto>> GetAllAsync(int pageSize)
+    public async Task<IEnumerable<GameDto>> GetAllAsync(int pageSize, int page)
     {
-        var games = await _unitOfWork.GameRepository.GetAllAsync(pageSize);
+        var games = await _unitOfWork.GameRepository.GetAllAsync(pageSize, page);
         var gameDtos = _mapper.Map<IEnumerable<GameDto>>(games);
         return gameDtos;
     }

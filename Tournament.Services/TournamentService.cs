@@ -18,16 +18,16 @@ public class TournamentService : ITournamentService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<TournamentDto>> GetAllAsync(int pageSize)
+    public async Task<IEnumerable<TournamentDto>> GetAllAsync(int pageSize, int page)
     {
-        var tournaments = await _unitOfWork.TournamentRepository.GetAllAsync(pageSize);
+        var tournaments = await _unitOfWork.TournamentRepository.GetAllAsync(pageSize, page);
         var tournamentDtos = _mapper.Map<IEnumerable<TournamentDto>>(tournaments);
         return tournamentDtos;
     }
 
-    public async Task<IEnumerable<TournamentDto>> GetAllWithGamesAsync(int pageSize)
+    public async Task<IEnumerable<TournamentDto>> GetAllWithGamesAsync(int pageSize, int page)
     {
-        var tournaments = await _unitOfWork.TournamentRepository.GetAllWithGamesAsync(pageSize);
+        var tournaments = await _unitOfWork.TournamentRepository.GetAllWithGamesAsync(pageSize, page);
         var tournamentDtos = _mapper.Map<IEnumerable<TournamentDto>>(tournaments);
         return tournamentDtos;
     }

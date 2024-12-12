@@ -28,8 +28,8 @@ namespace Tournament.Api.Controllers
             if (pageSize > 100) pageSize = 100;
             var tournamentDtos
                 = includeGames
-                    ? await _serviceManager.TournamentService.GetAllWithGamesAsync(pageSize)
-                    : await _serviceManager.TournamentService.GetAllAsync(pageSize);
+                    ? await _serviceManager.TournamentService.GetAllWithGamesAsync(pageSize, page)
+                    : await _serviceManager.TournamentService.GetAllAsync(pageSize, page);
 
             var totalItemsInDb = await _serviceManager.TournamentService.Count();
             var totalPages = Math.Ceiling((double)totalItemsInDb / pageSize);
