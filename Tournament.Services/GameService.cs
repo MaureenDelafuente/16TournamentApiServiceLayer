@@ -48,8 +48,12 @@ public class GameService : IGameService
         return exists;
     }
 
-    public Game Add(GameDto gameDto)
+    public async Task<Game> Add(GameDto gameDto)
     {
+        //var tournament = await _unitOfWork.TournamentRepository.GetAsync(gameDto.TournamentId);
+        //if (tournament.Games.Count >= 10) throw new TournamentHasTooManyGamesException(gameDto.TournamentId);
+        var count = _unitOfWork.TournamentRepository.GetGameCount(gameDto.TournamentId);
+        if (count >= 10) throw new TournamentHasTooManyGamesException(gameDto.TournamentId);
         var game = _mapper.Map<Game>(gameDto);
         _unitOfWork.GameRepository.Add(game);
         _unitOfWork.CompleteAsync();

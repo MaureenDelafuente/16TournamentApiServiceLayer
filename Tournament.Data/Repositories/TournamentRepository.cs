@@ -37,6 +37,7 @@ public class TournamentRepository : ITournamentRepository
     {
         var tournament = await _context.Set<TournamentDetails>()
             .Where(t => t.Id == id)
+            //.Include(t => t.Games)
             .FirstOrDefaultAsync();
         return tournament;
     }
@@ -48,6 +49,17 @@ public class TournamentRepository : ITournamentRepository
             .FirstOrDefaultAsync();
         return tournament;
         ;
+    }
+
+    public int GetGameCount(int tournamentId)
+    {
+        var count = _context.Set<TournamentDetails>()
+            .Include(t => t.Games)
+            .FirstOrDefaultAsync(t => t.Id == tournamentId)?
+            .Result?.Games.Count
+                    ?? 0;
+
+        return count;
     }
 
     public async Task<bool> AnyAsync(int id)

@@ -9,7 +9,7 @@ public interface IGameRepository
     Task<Game?> GetAsync(string title);
 
     Task<bool> AnyAsync(int id);
-    void Add(Game game);
+    Task Add(Game game);
     void Update(Game game);
     void Remove(Game game);
     Task<int> CountAsync();

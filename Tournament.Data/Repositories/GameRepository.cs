@@ -56,9 +56,11 @@ public class GameRepository : IGameRepository
         return exists;
     }
 
-    public void Add(Game game)
+    public async Task Add(Game game)
     {
         _context.Set<Game>().Add(game);
+        await _context.SaveChangesAsync();
+        //return game;
     }
 
     public void Update(Game game)

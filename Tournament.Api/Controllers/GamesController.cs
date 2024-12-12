@@ -75,7 +75,7 @@ namespace Tournament.Api.Controllers
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var g = _serviceManager.GameService.Add(gameDto);
+            var g = await _serviceManager.GameService.Add(gameDto);
             return CreatedAtAction("GetGame", new {id = g.Id}, gameDto);
         }
 
