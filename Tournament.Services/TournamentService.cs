@@ -2,6 +2,7 @@
 using Service.Contracts;
 using Tournament.Core.Dto;
 using Tournament.Core.Entities;
+using Tournament.Core.Exceptions;
 using Tournament.Core.Repositories;
 
 
@@ -35,7 +36,7 @@ public class TournamentService : ITournamentService
     public async Task<TournamentDto?> GetAsync(int id)
     {
         var tournament = await _unitOfWork.TournamentRepository.GetAsync(id);
-        if (tournament is null) return null;
+        if (tournament is null) throw new TournamentNotFoundException(id);
         var tournamentDto = _mapper.Map<TournamentDto>(tournament);
         return tournamentDto;
     }
@@ -43,7 +44,7 @@ public class TournamentService : ITournamentService
     public async Task<TournamentDto?> GetAsync(string title)
     {
         var tournament = await _unitOfWork.TournamentRepository.GetAsync(title);
-        if (tournament is null) return null;
+        if (tournament is null) throw new TournamentNotFoundException(title);
         var tournamentDto = _mapper.Map<TournamentDto>(tournament);
         return tournamentDto;
     }

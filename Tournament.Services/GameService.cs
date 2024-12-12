@@ -2,6 +2,7 @@
 using Service.Contracts;
 using Tournament.Core.Dto;
 using Tournament.Core.Entities;
+using Tournament.Core.Exceptions;
 using Tournament.Core.Repositories;
 
 
@@ -28,7 +29,7 @@ public class GameService : IGameService
     public async Task<GameDto?> GetAsync(int id)
     {
         var game = await _unitOfWork.GameRepository.GetAsync(id);
-        if (game is null) return null;
+        if (game is null) throw new GameNotFoundException(id);
         var gameDto = _mapper.Map<GameDto>(game);
         return gameDto;
     }
@@ -36,11 +37,11 @@ public class GameService : IGameService
     public async Task<GameDto?> GetAsync(string title)
     {
         var game = await _unitOfWork.GameRepository.GetAsync(title);
-        if (game is null) return null;
+        if (game is null) throw new GameNotFoundException(title);
         var gameDto = _mapper.Map<GameDto>(game);
         return gameDto;
     }
-
+        
     public async Task<bool> ExistsAsync(int id)
     {
         var exists = await _unitOfWork.GameRepository.AnyAsync(id);
