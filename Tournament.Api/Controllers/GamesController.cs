@@ -19,10 +19,19 @@ namespace Tournament.Api.Controllers
 
         // GET: api/Games
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GameDto>>> GetGame([FromQuery] int pageSize = 20, [FromQuery] int page = 1)
+        public async Task<ActionResult<IEnumerable<GameDto>>> GetGame(
+            [FromQuery] int pageSize = 20, 
+            [FromQuery] int page = 1)
         {
             if (pageSize > 100) pageSize = 100;
             var gameDtos = await _serviceManager.GameService.GetAllAsync(pageSize);
+
+            var totalItemsInDb = await _serviceManager.GameService.Count();
+            var totalPages = Math.Ceiling((double)totalItemsInDb / pageSize);
+            Response.Headers.Append("X-Total-Pages", totalPages.ToString());
+            Response.Headers.Append("X-Page-Size", pageSize.ToString());
+            Response.Headers.Append("X-Current-Page", page.ToString());
+            Response.Headers.Append("X-Total-Items", totalItemsInDb.ToString());
             return Ok(gameDtos);
         }
 

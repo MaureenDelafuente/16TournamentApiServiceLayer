@@ -1,11 +1,9 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.JsonPatch;
+﻿using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Service.Contracts;
 using Tournament.Core.Dto;
 using Tournament.Core.Entities;
-using Tournament.Core.Repositories;
 
 namespace Tournament.Api.Controllers
 {
@@ -13,15 +11,10 @@ namespace Tournament.Api.Controllers
     [ApiController]
     public class TournamentDetailsController : ControllerBase
     {
-        //private readonly TournamentApiContext _context;
-        //private readonly IUnitOfWork _unitOfWork;
-        //private readonly IMapper _mapper;
         private readonly IServiceManager _serviceManager;
 
-        public TournamentDetailsController(IUnitOfWork unitOfWork, IMapper mapper, IServiceManager serviceManager)
+        public TournamentDetailsController(IServiceManager serviceManager)
         {
-            //_unitOfWork = unitOfWork;
-            //_mapper = mapper;
             _serviceManager = serviceManager;
         }
 
@@ -29,15 +22,22 @@ namespace Tournament.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TournamentDto>>> GetTournamentDetails(
             [FromQuery] int pageSize = 20,
+            [FromQuery] int page = 1,
             [FromQuery] bool includeGames = false)
         {
-            //return await _unitOfWork.TournamentRepository.GetAllAsync();
             if (pageSize > 100) pageSize = 100;
             var tournamentDtos
                 = includeGames
                     ? await _serviceManager.TournamentService.GetAllWithGamesAsync(pageSize)
                     : await _serviceManager.TournamentService.GetAllAsync(pageSize);
-            //var tournamentDtos = _mapper.Map<IEnumerable<TournamentDto>>(tournaments);
+
+            var totalItemsInDb = await _serviceManager.TournamentService.Count();
+            var totalPages = Math.Ceiling((double)totalItemsInDb / pageSize);
+            Response.Headers.Append("X-Total-Pages", totalPages.ToString());
+            Response.Headers.Append("X-Page-Size", pageSize.ToString());
+            Response.Headers.Append("X-Current-Page", page.ToString());
+            Response.Headers.Append("X-Total-Items", totalItemsInDb.ToString());
+
             return Ok(tournamentDtos);
         }
 

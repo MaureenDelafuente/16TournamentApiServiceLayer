@@ -13,4 +13,5 @@ public interface ITournamentService
     public TournamentDetails Add(TournamentDto tournament);
     public void Update(TournamentDetails tournament);
     public Task Remove(int id);
+    public Task<int> Count();
 }

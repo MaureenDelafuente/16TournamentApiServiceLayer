@@ -68,4 +68,9 @@ public class GameService : IGameService
         _unitOfWork.GameRepository.Remove(game);
         await _unitOfWork.CompleteAsync();
     }
+
+    public async Task<int> Count()
+    {
+        return await _unitOfWork.GameRepository.CountAsync();
+    }
 }

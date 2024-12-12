@@ -69,4 +69,9 @@ public class TournamentRepository: ITournamentRepository
     {
         _context.Set<TournamentDetails>().Remove(tournament);
     }
+
+    public async Task<int> Count()
+    {
+        return _context.Set<TournamentDetails>().Count();
+    }
 }

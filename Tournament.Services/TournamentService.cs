@@ -85,4 +85,9 @@ public class TournamentService : ITournamentService
     {
         throw new NotImplementedException();
     }
+
+    public Task<int> Count()
+    {
+        return _unitOfWork.TournamentRepository.Count();
+    }
 }

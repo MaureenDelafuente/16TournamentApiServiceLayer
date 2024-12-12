@@ -13,4 +13,5 @@ public interface IGameService
     public Game Add(GameDto game);
     public Task Update(Game game);
     public Task Remove(int id);
+    public Task<int> Count();
 }

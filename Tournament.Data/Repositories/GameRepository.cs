@@ -73,4 +73,9 @@ public class GameRepository : IGameRepository
     {
         _context.Set<Game>().Remove(game);
     }
+
+    public async Task<int> CountAsync()
+    {
+        return _context.Set<Game>().Count();
+    }
 }
