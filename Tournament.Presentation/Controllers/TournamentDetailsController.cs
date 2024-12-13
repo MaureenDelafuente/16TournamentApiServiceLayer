@@ -33,7 +33,7 @@ namespace Tournament.Api.Controllers
                     : await _serviceManager.TournamentService.GetAllAsync(pageSize, page);
 
             var totalItemsInDb = await _serviceManager.TournamentService.Count();
-            var totalPages = Math.Ceiling((double)totalItemsInDb / pageSize);
+            var totalPages = Math.Ceiling((double) totalItemsInDb / pageSize);
             Response.Headers.Append("X-Total-Pages", totalPages.ToString());
             Response.Headers.Append("X-Page-Size", pageSize.ToString());
             Response.Headers.Append("X-Current-Page", page.ToString());
@@ -47,7 +47,14 @@ namespace Tournament.Api.Controllers
         public async Task<ActionResult<TournamentDto>> GetTournamentDetails(int id)
         {
             var tournamentDto = await _serviceManager.TournamentService.GetAsync(id);
-            if (tournamentDto == null) return NotFound();
+            if (tournamentDto == null)
+            {
+                HttpContext.Response.ContentType = "Application/Json";
+                return Problem(
+                    detail: $"Tournament with id {id} not found",
+                    statusCode: StatusCodes.Status404NotFound
+                );
+            }
 
             //var tournamentDto = _mapper.Map<TournamentDto>(tournamentDto);
             return Ok(tournamentDto);
@@ -68,10 +75,11 @@ namespace Tournament.Api.Controllers
             {
                 if (!await _serviceManager.TournamentService.ExistsAsync(id))
                 {
+                    HttpContext.Response.ContentType = "Application/Json";
                     return Problem(
                         detail: $"Tournament with id {id} not found",
-                        statusCode:StatusCodes.Status404NotFound
-                        );
+                        statusCode: StatusCodes.Status404NotFound
+                    );
                 }
 
                 throw;
@@ -112,15 +120,18 @@ namespace Tournament.Api.Controllers
             //_unitOfWork.CompleteAsync();
 
             var exists = await _serviceManager.TournamentService.ExistsAsync(id);
-            if (!exists) return Problem(
-                detail: $"Tournament with id {id} not found",
-                statusCode: StatusCodes.Status404NotFound
-            );
+            if (!exists)
+            {
+                HttpContext.Response.ContentType = "Application/Json";
+                return Problem(
+                    detail: $"Tournament with id {id} not found",
+                    statusCode: StatusCodes.Status404NotFound
+                );
+            }
 
             _serviceManager.TournamentService.Remove(id);
 
             return NoContent();
         }
-
     }
 }

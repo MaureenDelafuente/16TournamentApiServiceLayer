@@ -21,14 +21,14 @@ namespace Tournament.Api.Controllers
         // GET: api/Games
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GameDto>>> GetGame(
-            [FromQuery] int pageSize = 20, 
+            [FromQuery] int pageSize = 20,
             [FromQuery] int page = 1)
         {
             if (pageSize > 100) pageSize = 100;
             var gameDtos = await _serviceManager.GameService.GetAllAsync(pageSize, page);
 
             var totalItemsInDb = await _serviceManager.GameService.Count();
-            var totalPages = Math.Ceiling((double)totalItemsInDb / pageSize);
+            var totalPages = Math.Ceiling((double) totalItemsInDb / pageSize);
             Response.Headers.Append("X-Total-Pages", totalPages.ToString());
             Response.Headers.Append("X-Page-Size", pageSize.ToString());
             Response.Headers.Append("X-Current-Page", page.ToString());
@@ -41,10 +41,15 @@ namespace Tournament.Api.Controllers
         public async Task<ActionResult<GameDto>> GetGame(string title)
         {
             var gameDto = await _serviceManager.GameService.GetAsync(title);
-            if (gameDto == null) return Problem(
-                detail: $"Game with title {title} not found",
-                statusCode: StatusCodes.Status404NotFound
-            );
+            if (gameDto == null)
+            {
+                HttpContext.Response.ContentType = "Application/Json";
+                return Problem(
+                    detail: $"Game with title {title} not found",
+                    statusCode: StatusCodes.Status404NotFound
+                );
+            }
+
             return Ok(gameDto);
         }
 
@@ -53,10 +58,14 @@ namespace Tournament.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutGame(int id, Game game)
         {
-            if (id != game.Id) return Problem(
-                detail: $"Game id {game.Id} doesn't match provided id {id}",
-                statusCode: StatusCodes.Status400BadRequest
-            );
+            if (id != game.Id)
+            {
+                HttpContext.Response.ContentType = "Application/Json";
+                return Problem(
+                    detail: $"Game id {game.Id} doesn't match provided id {id}",
+                    statusCode: StatusCodes.Status400BadRequest
+                );
+            }
 
             try
             {
@@ -66,11 +75,11 @@ namespace Tournament.Api.Controllers
             {
                 if (!await _serviceManager.TournamentService.ExistsAsync(id))
                 {
+                    HttpContext.Response.ContentType = "Application/Json";
                     return Problem(
                         detail: $"Game with id {id} not found",
                         statusCode: StatusCodes.Status404NotFound
                     );
-
                 }
 
                 throw;
@@ -84,10 +93,14 @@ namespace Tournament.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<GameDto>> PostGame(GameDto gameDto)
         {
-            if (!ModelState.IsValid) return Problem(
-                detail: $"Game couldn't be posted, modelstate: {ModelState}",
-                statusCode: StatusCodes.Status400BadRequest
-            );
+            if (!ModelState.IsValid)
+            {
+                HttpContext.Response.ContentType = "Application/Json";
+                return Problem(
+                    detail: $"Game couldn't be posted, modelstate: {ModelState}",
+                    statusCode: StatusCodes.Status400BadRequest
+                );
+            }
             //return BadRequest(ModelState);
 
             var g = await _serviceManager.GameService.Add(gameDto);
@@ -99,10 +112,14 @@ namespace Tournament.Api.Controllers
         public async Task<IActionResult> DeleteGame(int id)
         {
             var exists = await _serviceManager.GameService.ExistsAsync(id);
-            if (!exists) return Problem(
-                detail: $"Game with id {id} not found",
-                statusCode: StatusCodes.Status404NotFound
-            );
+            if (!exists)
+            {
+                HttpContext.Response.ContentType = "Application/Json";
+                return Problem(
+                    detail: $"Game with id {id} not found",
+                    statusCode: StatusCodes.Status404NotFound
+                );
+            }
 
 
             _serviceManager.GameService.Remove(id);
