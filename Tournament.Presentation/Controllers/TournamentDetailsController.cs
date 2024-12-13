@@ -62,16 +62,16 @@ namespace Tournament.Api.Controllers
 
             try
             {
-                //await _context.SaveChangesAsync();
-                //_unitOfWork.TournamentRepository.Update(tournament);
-                //_unitOfWork.CompleteAsync();
                 _serviceManager.TournamentService.Update(tournament);
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!await _serviceManager.TournamentService.ExistsAsync(id))
                 {
-                    return NotFound();
+                    return Problem(
+                        detail: $"Tournament with id {id} not found",
+                        statusCode:StatusCodes.Status404NotFound
+                        );
                 }
 
                 throw;
@@ -112,7 +112,10 @@ namespace Tournament.Api.Controllers
             //_unitOfWork.CompleteAsync();
 
             var exists = await _serviceManager.TournamentService.ExistsAsync(id);
-            if (!exists) return NotFound();
+            if (!exists) return Problem(
+                detail: $"Tournament with id {id} not found",
+                statusCode: StatusCodes.Status404NotFound
+            );
 
             _serviceManager.TournamentService.Remove(id);
 

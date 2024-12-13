@@ -41,7 +41,10 @@ namespace Tournament.Api.Controllers
         public async Task<ActionResult<GameDto>> GetGame(string title)
         {
             var gameDto = await _serviceManager.GameService.GetAsync(title);
-            if (gameDto == null) return NotFound();
+            if (gameDto == null) return Problem(
+                detail: $"Game with title {title} not found",
+                statusCode: StatusCodes.Status404NotFound
+            );
             return Ok(gameDto);
         }
 
@@ -50,7 +53,10 @@ namespace Tournament.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutGame(int id, Game game)
         {
-            if (id != game.Id) return BadRequest();
+            if (id != game.Id) return Problem(
+                detail: $"Game id {game.Id} doesn't match provided id {id}",
+                statusCode: StatusCodes.Status400BadRequest
+            );
 
             try
             {
@@ -60,7 +66,11 @@ namespace Tournament.Api.Controllers
             {
                 if (!await _serviceManager.TournamentService.ExistsAsync(id))
                 {
-                    return NotFound();
+                    return Problem(
+                        detail: $"Game with id {id} not found",
+                        statusCode: StatusCodes.Status404NotFound
+                    );
+
                 }
 
                 throw;
@@ -74,7 +84,11 @@ namespace Tournament.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<GameDto>> PostGame(GameDto gameDto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid) return Problem(
+                detail: $"Game couldn't be posted, modelstate: {ModelState}",
+                statusCode: StatusCodes.Status400BadRequest
+            );
+            //return BadRequest(ModelState);
 
             var g = await _serviceManager.GameService.Add(gameDto);
             return CreatedAtAction("GetGame", new {id = g.Id}, gameDto);
@@ -85,7 +99,11 @@ namespace Tournament.Api.Controllers
         public async Task<IActionResult> DeleteGame(int id)
         {
             var exists = await _serviceManager.GameService.ExistsAsync(id);
-            if (!exists) return NotFound();
+            if (!exists) return Problem(
+                detail: $"Game with id {id} not found",
+                statusCode: StatusCodes.Status404NotFound
+            );
+
 
             _serviceManager.GameService.Remove(id);
 
